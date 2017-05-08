@@ -1,0 +1,185 @@
+<?php 
+//Sectia 1: Date Asigurat
+
+$date_asigurat = array(
+	
+	'statut_juridic' => array(
+		'Persoana Fizica',
+		'Persoana Juridica',	
+	),	
+
+	'resedinta_sofer' => array(
+		'Mun. Chisinau',
+		'Mun. Balti',
+		'Alte Localitati',
+	),	
+
+	'virsta_conducator' => array(
+		'pina la 23 ani',
+		'peste 23 ani',
+	),
+ 	
+ 	'stagiu_conducator' = array(
+ 		'pina la 1 an',
+		'pina la 2 ani',
+		'pina la 3 ani',
+		'pina la 4 ani',
+		'pina la 5 ani',
+		'pina la 6 ani',
+		'pina la 7 ani',
+		'pina la 8 ani',
+		'peste 8 ani', 	
+	),
+
+	'pensionar' => array(
+		'Da',
+		'Nu',
+	),
+
+	'rca_contract_vechi' => array(
+		'Da',
+		'Nu',
+	),
+	'accidente' => array(
+		'0',
+		'1',
+		'2',
+		'3',
+		'peste 4',
+	),
+
+	'utilizare_vehicul' => array(
+		'Uz personal',
+		'Autovehicul inmatriculat cu numere temporare',
+		'Autovehicul utilizat in activitati agricole sezoniera',
+		'Autovehicul aflat in alt caz prevazut de legislatie',
+	),
+
+
+);
+
+//Sectia 2: Datele autovehiculului
+'date_autovehicul' => array(
+
+	'tip_vehicul' => array(
+
+		'Autoturism (destinat transportului de persoane cu pina la 9 locuri, inclusiv conducatorul)',
+		
+		'Vehicul destinat transportului de persoane (Autobuz)',
+		
+		'Tractor rutier (altele decit tractoarele pentru semiremorci) cu o capacitate a motorului',
+
+		'Autocamion cu masa maxima autorizata',	
+
+		'Motocicleta',
+	),
+	
+	'capacitate_cilindrica_autoturism' => array(
+
+		'pina la 1200 cm.3',
+		'de la 1201 pina la 1600 cm.3',
+		'de la 1601 pina la 2000 cm.3',
+		'de la 2001 pina la 2400 cm.3',
+		'de la 2401 pina la 3000 cm.3',
+		'peste 3000 cm.3',
+	),
+
+	'numarul_de_locuri_autobuz' => array(
+
+		'Vehicul destinat transportului de persoane cu 10-17 locuri, inclusiv conducatorul',
+		
+		'Vehicul destinat transportului de persoane cu 18-30 locuri, inclusiv conducatorul',
+		
+		'Vehicul destinat transportului de persoane cu peste 30 locuri, inclusiv conducatorul',
+
+		'Troilebuz',
+	),
+
+	'putere_motor_tractor_rutier' => array(
+		
+		'Pina la 45 c.p.,inclusiv',
+		'De la 46 c.p., pina la 100 c.p., inclusiv',
+		'Peste 100 c.p.',
+	),
+
+	'masa_autorizata_autocamion' => array(
+		
+		'Pina la 3500 kg.',
+		'De la 3501 pina la 7500 kg.',
+		'De la 7501 pina la 16000 kg.',
+		'Peste 16000 kg.',
+	),
+
+	'capacitate_cilindrica_motocicleta' => array(
+		'Pina la 300 cm.3',
+		'Peste 300 cm.3',
+	),
+
+	'inmatriculat_tara' => array(
+		'Republica Moldova',
+		'Strainatate',
+	),
+
+	'persoane_admise_volan' => array(
+		'Limitat (cu indicare a pina la 3 persoane)',
+		'Nelimitat',
+	),
+
+	/*'carte_verde_europa' => array(
+		'Da',
+		'Nu',
+	),*/
+),
+
+'date_polita' => array(
+
+	'perioada_asigurata' => array(
+		'15 zile',	
+		'1 luna',	
+		'2 luni',	
+		'3 luni',	
+		'4 luni',
+		'5 luni',	
+		'6 luni',	
+		'7 luni',	
+		'8 luni',
+		'9 luni',	
+		'10 luni',	
+		'11 luni',			
+		'12 luni',
+	),	
+
+	'compania_asigurare' => array(
+		'Moldasig',
+		'Donaris Group',
+		'Garantie',
+		'Moldcargo',
+		'Transelit',
+		'Alliance Insurance Group',
+		'Grawe Carat',
+		'Klassika',
+	),
+),
+
+'formular_comanda' => array(
+	'nume_prenume' => '',
+	'cod_personal' => '',
+	'drept_posesiune_vehicul' => array(
+		'Personal',
+		'Leasing',
+		'Locatiune (comodat)',
+		'Procura si alte titluri',
+	),
+
+	'numar_inmatriculare_document' => '',
+	'numar_iregistrare_vehicul' => '',
+	'an_fabricatie' => '',
+	'marca' => '',
+	'tip_autovehicul' => '',
+	'capacitate_cilindrica' => '',
+	'masa_proprie' => '',
+	'masa_max_autorizata' => '',
+	'numar_locuri' => '',
+	'numar_caroserie' => '',
+	'numar_motor' => '',
+),

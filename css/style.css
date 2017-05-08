@@ -1,0 +1,108 @@
+.site{
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 25px 50px;
+	min-height: 80vh;
+}
+
+.admin-section{
+	padding: 25px 0;
+}
+.nav-tabs>li.admin-nav-delogare{
+	float: right;
+}
+.nav-tabs>li.admin-nav-delogare a{
+	color: red;
+}
+
+.header{
+	padding: 15px;
+	background: #282830;
+	margin: 0;
+	color: #fff;
+}
+.header .header-in{
+	max-width: 1000px;
+	padding: 0 50px;
+	margin: 0 auto;
+}
+.header .header-in h1.logo{
+	font-size: 20px;
+	text-transform: uppercase;
+	color: #eee;
+	margin: 0;
+	padding: 5px 0;
+	line-height: 1;
+}
+.header .menu{
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	float: right;
+}
+.header .menu li{
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+}
+.header .menu li a{
+	display: inline-block;
+	margin: 0;
+	padding: 5px 10px;
+	text-decoration: none;
+	border-radius: 3px;
+	color: #eee;
+}
+.header .menu li a.active{
+	background: #3D8EB9;
+	color: #fff;
+}
+
+.footer{
+	padding: 15px;
+	background: #282830;
+	margin: 0;
+	color: #fff;
+}
+.footer .footer-in{
+	max-width: 1000px;
+	padding: 0 50px;
+	margin: 0 auto;
+	text-align: center;
+}
+.footer .footer-in .copyright{
+	font-size: 14px;
+}
+.footer .footer-menu{
+	font-size: 12px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.footer .footer-menu li{
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+}
+.footer .footer-menu li a{
+	display: inline-block;
+	margin: 0;
+	padding: 5px 10px;
+	text-decoration: none;
+	border-radius: 3px;
+	color: #eee;
+}
+.footer .footer-menu li a.active{
+	background: #3D8EB9;
+	color: #fff;
+}
+
+
+.login-form {
+	max-width: 300px;
+	margin: 30px auto;
+}
+
+h3.form-section{
+	margin-top: 30px;
+}
