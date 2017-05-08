@@ -267,7 +267,7 @@ function form_fields(){
 			'label' => 'Tipul vehiculului',
 			'type' => 'select',
 			'options' => array(
-				'autorurism' => 'Autoturism (destinat transportului de persoane cu pina la 9 locuri, inclusiv conducatorul)',
+				'autoturism' => 'Autoturism (destinat transportului de persoane cu pina la 9 locuri, inclusiv conducatorul)',
 				'autobuz' => 'Vehicul destinat transportului de persoane (Autobuz)',
 				'tractor' => 'Tractor rutier (altele decit tractoarele pentru semiremorci) cu o capacitate a motorului',
 				'autocamion' => 'Autocamion cu masa maxima autorizata',	
@@ -476,3 +476,115 @@ function get_header(){
 function get_footer(){
 	include "footer.php";
 }
+
+
+function price_table(){
+	return array(
+		'K1' => array(
+			'autoturism' => array(
+				'1200-' => 0.7,
+				'1201+' => 1,
+				'1601+' => 1.1,
+				'2001+' => 1.2,
+				'2401+' => 1.5,
+				'3000+' => 3,
+			),
+			'autobuz' => array(
+				'vehicul10+' => 1.5,
+				'vehicul18+' => 2,
+				'vehicul30+' => 2.2,
+				'troilebuz' => 3,
+			),
+			'tractor' => array(
+				'45-' => 0.5,
+				'46+' => 0.7,
+				'100+' => 0.9,
+			),
+			'autocamion' => array(
+				'3500-' => 1.5,
+				'3501+' => 1.7,
+				'7501+' => 2,
+				'16000+' => 2.5,
+			),	
+			'motocicleta' => array(
+				'300-' => 0.3,
+				'300+' => 0.5,
+			),
+		),
+		'K2' => array(
+			'mun_chisinau' => 1.4,
+			'mun_balti' => 1,
+			'alte_localitati' => 0.9
+		),
+		'K3' => array(
+			'fizica' => 0.9,
+			'juridica' => 1.5,
+		),
+		'K4' => 1.2,
+		'K5' => array(
+			'23-' => array(
+				'2-' => 1.2,
+				'2+' => 1.1,
+			),
+			'23+' => array(
+				'2-' => 1,
+				'2+' => 0.9,
+			),
+		),
+	);
+}
+
+function calculator_rca(){
+	if( empty($_POST) )
+		return false;
+
+	$data = $_POST;
+	$k1 = $k2 = $k3 = $k4 = $k5 = 1;
+	$price = price_table();
+
+	// K1
+	switch ( $data['tip_vehicul'] ) {
+		case 'autoturism':
+				$k1 = $price['K1']['autoturism'][ $data[ 'capacitate_cilindrica_autoturism' ] ];
+			break;
+		case 'autobuz':
+				$k1 = $price['K1']['autobuz'][ $data[ 'numarul_de_locuri_autobuz' ] ];
+			break;
+		case 'tractor':
+				$k1 = $price['K1']['tractor'][ $data[ 'putere_motor_tractor_rutier' ] ];
+			break;
+		case 'autocamion':
+				$k1 = $price['K1']['autocamion'][ $data[ 'masa_autorizata_autocamion' ] ];
+			break;
+		case 'motocicleta':
+				$k1 = $price['K1']['motocicleta'][ $data[ 'capacitate_cilindrica_motocicleta' ] ];
+			break;
+	}
+
+	// K2
+	$k2 = $price['K2'][ $data['resedinta_sofer'] ];
+
+	// K3
+	$k3 = $price['K3'][ $data['statut_juridic'] ];
+
+	// K4
+	if( 'nelimitat' == $data['persoane_admise_volan'] || 'juridica' == $data['statut_juridic'] ){
+		$k4 = $price['K4'];
+	}
+
+	//K5
+	else{
+		$stagiu = intval( $data['stagiu_conducator'] );
+		if( $stagiu < 3 ){
+			$k5 = $price['K5'][ $data['virsta_conducator'] ]['2-'];
+		}
+		else{
+			$k5 = $price['K5'][ $data['virsta_conducator'] ]['2+'];
+		}
+	}
+
+
+	echo round( 715 * $k1 * $k2 * $k3 * $k4 * $k5 );
+}
+
+calculator_rca();
