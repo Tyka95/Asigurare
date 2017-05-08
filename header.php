@@ -26,7 +26,7 @@
 	<div class="header-in">
 		<div class="row">
 			<div class="col-xs-5">
-				<h1 class="logo">Asigurare RCA</h1>
+				<h1 class="logo"><a href="index.php">Asigurare RCA</a></h1>
 			</div>
 			<div class="col-xs-7">
 				<ul class="menu">
@@ -40,7 +40,7 @@
 					$pagini = toate_paginile();
 					if( !empty($pagini) ){
 						foreach ($pagini as $pagina) {
-							if( 'Sus' == $pagina[ 'meniu' ] ){
+							if( 'sus' == $pagina[ 'meniu' ] ){
 								$meniu[ $pagina[ 'url_text' ] ] = $pagina[ 'titlu' ];
 							}
 						}

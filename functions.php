@@ -1,4 +1,12 @@
 <?php
+
+// System not installed, yet!
+if( ! file_exists( dirname(__FILE__) . "/db-config.php" ) && basename( $_SERVER['REQUEST_URI'] ) !== 'install.php' ){
+	header('Location: install.php');
+	exit;
+}
+
+// System is installed!
 require_once dirname(__FILE__) ."/db-config.php";
 include dirname(__FILE__) ."/fields.php";
 
@@ -13,6 +21,8 @@ function conectare_la_db(){
 ------------------------------------------------*/
 function adauga_pagina( $titlu, $continut = '', $meniu = '' ){
 	$conn = conectare_la_db();
+	$titlu = htmlspecialchars( mysqli_real_escape_string( $conn, $titlu ) );
+	$continut = htmlspecialchars( mysqli_real_escape_string( $conn, $continut ) );
 
 	// pregateste textul pentru url: https://css-tricks.com/snippets/php/create-url-slug-from-post-title/
 	$url_text = strtolower( preg_replace('/[^A-Za-z0-9-]+/', '-', $titlu) );
@@ -43,6 +53,8 @@ function adauga_pagina( $titlu, $continut = '', $meniu = '' ){
 ------------------------------------------------*/
 function editeaza_pagina( $titlu, $continut = '', $meniu = '', $id ){
 	$conn = conectare_la_db();
+	$titlu = htmlspecialchars( mysqli_real_escape_string( $conn, $titlu ) );
+	$continut = htmlspecialchars( mysqli_real_escape_string( $conn, $continut ) );
 
 	// pregateste textul pentru url: https://css-tricks.com/snippets/php/create-url-slug-from-post-title/
 	$url_text = strtolower( preg_replace('/[^A-Za-z0-9-]+/', '-', $titlu) );
@@ -73,15 +85,31 @@ function editeaza_pagina( $titlu, $continut = '', $meniu = '', $id ){
 
 /* Primeste detaliile unei pagini.
 ------------------------------------------------*/
-function primire_pagina( $page_name ){
+function primire_pagina( $page_name, $id = false ){
+	if( empty( $page_name ) ){
+		$page_name = $id;
+		$column = 'id';
+	}
+	else{
+		$column = 'url_text';
+	}
+
 	$conn     = conectare_la_db();
-	$url_text = mysqli_real_escape_string( $conn, strip_tags( $page_name ) );
-	$sql      = "SELECT * FROM pages WHERE url_text = '$url_text'";
+	$by       = mysqli_real_escape_string( $conn, strip_tags( $page_name ) );
+	$sql      = "SELECT * FROM pages WHERE $column = '$by'";
 	$result   = mysqli_query($conn, $sql);
 	$row      = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
+	if( is_array( $row ) ){
+		$row['continut'] = !empty( $row['continut'] ) ? htmlspecialchars_decode( $row['continut'] ) : '';
+	}
+
 	return $row;
 	mysqli_close($conn);
+}
+
+function primire_pagina_dupa_id( $id ){
+	return primire_pagina( false, $id );
 }
 
 /* genereaza toate paginile
@@ -92,8 +120,18 @@ function toate_paginile(){
 	$result = mysqli_query($conn, $sql);
 	$rows   = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
+	if( is_array($rows) ){
+		foreach ($rows as $id => $row) {
+			$rows[$id]['continut'] = !empty( $row['continut'] ) ? htmlspecialchars_decode( $row['continut'] ) : '';
+		}
+	}
+
 	return $rows;
 	mysqli_close($conn);
+}
+
+function get_page_url( $page_name ){
+	return 'index.php?page=' .$page_name;
 }
 
 

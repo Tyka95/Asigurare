@@ -21,12 +21,8 @@ if(!empty($_POST)){
 /* Primeste detaliile din DB, daca forma NU a fost trimisa, pentru a popula forma.
 ------------------------------------------------*/
 if( empty($_POST) && !empty($_GET['id']) ){
-	$conn     = conectare_la_db();
-	$id       = mysqli_real_escape_string( $conn, strip_tags($_GET['id']) );
-	$sql      = "SELECT * FROM pages WHERE id = '$id'";
-	$result   = mysqli_query($conn, $sql);
-	$pagina   = mysqli_fetch_array($result, MYSQLI_ASSOC);
-	mysqli_close($conn);
+	$id       = strip_tags($_GET['id']);
+	$pagina = primire_pagina_dupa_id( intval( $id ) );
 
 	$titlu_pagina = $pagina['titlu'];
 	$continut_pagina = $pagina['continut'];
@@ -74,7 +70,7 @@ echo $mesaj;
 	</div>
 	<div class="form-group">
 		<label>Adauga in meniu</label>
-		<?php echo Field::select('meniu', $meniu, array(
+		<?php echo Field::radio('meniu', $meniu, array(
 			'no' => 'Nici un meniu',
 			'sus' => 'Sus',
 			'jos' => 'Jos',
@@ -82,7 +78,7 @@ echo $mesaj;
 	</div>
 	<div class="form-group">
 		<button type="submit" class="btn btn-primary">Trimite</button>
-		<button type="reset" class="btn btn-link">Anuleaza</button>
+		<a href="admin.php?section=pagini" class="btn btn-link">Anuleaza</a>
 
 	</div>
 </form>

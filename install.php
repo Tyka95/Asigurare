@@ -1,11 +1,27 @@
 <?php 
-	if( file_exists( dirname(__FILE__) . "/db-config.php" ) ) {
-		exit( "A fost instalat deja!" );
-	} 
+
+if( file_exists( dirname(__FILE__) . "/db-config.php" ) ) {
+	header('Location: index.php');
+	exit;
+}
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 	
-	include dirname(__FILE__) . "/header.php";
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	
-	?>
+	<title>Page</title>
+	<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-theme.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script type="text/javascript" src="js/jquery-2.2.4.min.js"></script>
+
+</head>
+<body>
 <div class="page-install">
 
 <?php
@@ -28,14 +44,14 @@ if( !empty($_POST) ){
 		$db_host = strip_tags($_POST['db-host']);
 	}
 	else{
-		$errors['db-host'] = '<div class="mesaj-eroare">Introduceti DB Host.</div>';
+		$errors['db-host'] = '<div class="alert alert-danger">Introduceti DB Host.</div>';
 	}
 
 	if( !empty($_POST['db-username']) ){
 		$db_username = strip_tags($_POST['db-username']);
 	}
 	else{
-		$errors['db-username'] = '<div class="mesaj-eroare">Introduceti DB username.</div>';
+		$errors['db-username'] = '<div class="alert alert-danger">Introduceti DB username.</div>';
 	}
 
 	// DB poate fi fara parola, de aceea nu vom afisa nici o eroare
@@ -45,28 +61,28 @@ if( !empty($_POST) ){
 		$db_name = strip_tags($_POST['db-name']);
 	}
 	else{
-		$errors['db-name'] = '<div class="mesaj-eroare">Introduceti DB name.</div>';
+		$errors['db-name'] = '<div class="alert alert-danger">Introduceti DB name.</div>';
 	}
 
 	if( !empty($_POST['admin-username']) ){
 		$admin_username = strip_tags($_POST['admin-username']);
 	}
 	else{
-		$errors['admin-username'] = '<div class="mesaj-eroare">Introduceti Administrator username.</div>';
+		$errors['admin-username'] = '<div class="alert alert-danger">Introduceti Administrator username.</div>';
 	}
 
 	if( !empty($_POST['admin-password']) ){
 		$admin_password = strip_tags($_POST['admin-password']);
 	}
 	else{
-		$errors['admin-password'] = '<div class="mesaj-eroare">Introduceti Administrator password.</div>';
+		$errors['admin-password'] = '<div class="alert alert-danger">Introduceti Administrator password.</div>';
 	}
 
 	if( !empty($_POST['admin-email']) ){
 		$admin_email = strip_tags($_POST['admin-email']);
 	}
 	else{
-		$errors['admin-email'] = '<div class="mesaj-eroare">Introduceti Administrator email.</div>';
+		$errors['admin-email'] = '<div class="alert alert-danger">Introduceti Administrator email.</div>';
 	}
 
 	if( !empty($db_host) && !empty($db_username) && !empty($db_name) && !empty( $admin_username ) && !empty( $admin_password ) && !empty( $admin_email )  ){
@@ -77,7 +93,7 @@ if( !empty($_POST) ){
 
 		// Verifica conexiunea
 		if (!$conn) {
-			echo "<h3>Conexiune imposibila</h3>";
+			$errors['conexiune-imposibila'] = '<div class="alert alert-danger">Conexiune imposibila!</div>';
 		}
 		else{
 			/* Creaza tabela pentru pagini
@@ -91,10 +107,10 @@ if( !empty($_POST) ){
 			meniu VARCHAR(30)
 			)";
 			if( mysqli_query($conn, $sql) ){
-				echo '<div class="mesaj-succes">Tabelul "pages" a fost creat.</div>';
+				echo '<div class="alert alert-success">Tabelul "pages" a fost creat.</div>';
 			}
 			else{
-				echo '<div class="mesaj-eroare">Eroare la crearea tabelului "pages".</div>';
+				echo '<div class="alert alert-danger">Eroare la crearea tabelului "pages".</div>';
 			}
 
 			/* Creaza tabela pentru administrator
@@ -106,10 +122,10 @@ if( !empty($_POST) ){
 			email VARCHAR(255)
 			)";
 			if( mysqli_query($conn, $sql) ){
-				echo '<div class="mesaj-succes">Tabelul "users" a fost creat.</div>';
+				echo '<div class="alert alert-success">Tabelul "users" a fost creat.</div>';
 			}
 			else{
-				echo '<div class="mesaj-eroare">Eroare la crearea tabelului "users".</div>';
+				echo '<div class="alert alert-danger">Eroare la crearea tabelului "users".</div>';
 			}
 
 			/* Creaza tabela pentru date_asigurat
@@ -123,10 +139,10 @@ if( !empty($_POST) ){
 			datele LONGTEXT
 			)";
 			if( mysqli_query($conn, $sql) ){
-				echo '<div class="mesaj-succes">Tabelul "asigurare" a fost creat.</div>';
+				echo '<div class="alert alert-success">Tabelul "asigurare" a fost creat.</div>';
 			}
 			else{
-				echo '<div class="mesaj-eroare">Eroare la crearea tabelului "asigurare".</div>';
+				echo '<div class="alert alert-danger">Eroare la crearea tabelului "asigurare".</div>';
 			}
 
 	
@@ -135,10 +151,10 @@ if( !empty($_POST) ){
 			$secure_pass = md5($admin_password);
 			$sql = "INSERT INTO users VALUES( NULL, '$admin_username', '$secure_pass', '$admin_email' )";
 			if( mysqli_query($conn, $sql) ){
-				echo "<div class=\"mesaj-succes\">Administratorul a fost inregistrat cu succes. Username: $admin_username | Password: $admin_password.</div>";
+				echo "<div class=\"alert alert-success\">Administratorul a fost inregistrat cu succes. Username: $admin_username | Password: $admin_password.</div>";
 			}
 			else{
-				echo '<div class="mesaj-eroare">Eroare inregistrarea administratorului.</div>';
+				echo '<div class="alert alert-danger">Eroare inregistrarea administratorului.</div>';
 			}
 
 			/* Inchidem conexiunea
@@ -156,7 +172,7 @@ define('DB_NAME',     '" . $db_name ."');";
 			// Creaza fisierul si adauga continutul
 			file_put_contents('db-config.php', $content);
 
-			echo '<a href="index.php" class="btn">Continua</a>';
+			echo '<a href="index.php" class="btn btn-primary">Continua</a>';
 
 		}
 	}
@@ -165,10 +181,13 @@ define('DB_NAME',     '" . $db_name ."');";
 
 // Daca forma nu a fost trimisa sau sunt errori afiseaza forma
 if( empty($_POST) || !empty($errors) ) :
+	
+	if( !empty($errors['conexiune-imposibila']) ) echo $errors['conexiune-imposibila'];
+
 ?>
 
 	<form method="post">
-		<h2>Server details</h2>
+		<h3 class="form-section">Server details</h3>
 		<div class="form-group">
 			<label>DB Host</label>
 			<input class="form-control" type="text" name="db-host" value="<?php echo $db_host; ?>"/>
@@ -190,7 +209,7 @@ if( empty($_POST) || !empty($errors) ) :
 			<?php if( !empty($errors['db-name']) ) echo $errors['db-name']; ?>
 		</div>
 
-		<h2>Administrator details</h2>
+		<h3 class="form-section">Administrator details</h3>
 		<div class="form-group">
 			<label>Administrator Username</label>
 			<input class="form-control" type="text" name="admin-username" value="<?php echo $admin_username; ?>"/>
@@ -206,11 +225,17 @@ if( empty($_POST) || !empty($errors) ) :
 			<input class="form-control" type="email" name="admin-email" value="<?php echo $admin_email; ?>"/>
 			<?php if( !empty($errors['admin-email']) ) echo $errors['admin-email']; ?>
 		</div>
-		<button type="submit" class="btn">Trimite</button>
+		<button type="submit" class="btn btn-primary">Trimite</button>
 	</form>
 
 <?php 
 endif;
 
-include dirname(__FILE__) . "/footer.php";
 ?>
+</div>
+
+	<script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/scripts.js"></script>
+
+</body>
+</html>

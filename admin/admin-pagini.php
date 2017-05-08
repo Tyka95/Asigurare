@@ -24,6 +24,7 @@ echo '<tr>
 	<td>Data adaugarii</td>
 	<td></td>
 	<td></td>
+	<td></td>
 </tr>';
 
 if( is_array($pagini) ){
@@ -34,6 +35,7 @@ if( is_array($pagini) ){
 		echo '<td>'. $pagina['data_adaugarii'] .'</td>';
 		echo '<td><a href="?section=adauga-pagina&id='. $pagina['id'] .'">Editeaza</a></td>';
 		echo '<td><a href="?section=pagini&action=sterge-pagina&id='. $pagina['id'] .'">Sterge</a></td>';
+		echo '<td><a href="'. get_page_url( $pagina['url_text'] ) .'" target="_blank">View</a></td>';
 		echo '</tr>';
 	}
 }

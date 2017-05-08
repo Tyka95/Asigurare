@@ -17,7 +17,7 @@
 					$pagini = toate_paginile();
 					if( !empty($pagini) ){
 						foreach ($pagini as $pagina) {
-							if( 'Jos' == $pagina[ 'meniu' ] ){
+							if( 'jos' == $pagina[ 'meniu' ] ){
 								$meniu[ $pagina[ 'url_text' ] ] = $pagina[ 'titlu' ];
 							}
 						}

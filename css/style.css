@@ -1,3 +1,9 @@
+.page-install{
+	display: block;
+	margin: 50px auto;
+	max-width: 600px;
+}
+
 .site{
 	max-width: 1000px;
 	margin: 0 auto;

@@ -20,7 +20,7 @@ class Field{
 	public static function textarea( $name, $value = '', $settings = array() ){
 		$rows = ( !empty($settings['rows']) ) ? intval( $settings['rows'] ) : 5;
 		$class = ( !empty($settings['class']) ) ? ' '. $settings['class'] : '';
-		return '<textarea class="form-control'. $class .'" name="'. $name .'" rows="'. $rows .'">'. self::get_value( $name, $value ) .'</textarea>';
+		return '<textarea class="form-control'. $class .'" name="'. $name .'" rows="'. $rows .'">'. htmlspecialchars( self::get_value( $name, $value ) ) .'</textarea>';
 	}
 
 	//Field 'select'
@@ -87,7 +87,7 @@ class Field{
 
 	public static function get_value( $name, $default_value ){
 		if( isset( $_POST[ $name ] ) ){
-			return !empty( $_POST[ $name ] ) ? strip_tags( $_POST[ $name ] ) : '';
+			return !empty( $_POST[ $name ] ) ? $_POST[ $name ] : '';
 		}
 		else{
 			return $default_value;
