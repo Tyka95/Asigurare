@@ -119,7 +119,8 @@ if( !empty($_POST) ){
 			id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
 			username VARCHAR(255),
 			password VARCHAR(255),
-			email VARCHAR(255)
+			email VARCHAR(255),
+			type VARCHAR(255)
 			)";
 			if( mysqli_query($conn, $sql) ){
 				echo '<div class="alert alert-success">Tabelul "users" a fost creat.</div>';
@@ -130,12 +131,13 @@ if( !empty($_POST) ){
 
 			/* Creaza tabela pentru date_asigurat
 			------------------------------------------------*/
-			$sql = "CREATE TABLE asi_auto(
+			$sql = "CREATE TABLE cereri(
 			id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 			nume_prenume VARCHAR(255),
 			cod_personal int,
 			numar_inmatriculare_document VARCHAR(255),
 			numar_inregistrare_vehicul VARCHAR(255),
+			status VARCHAR(255),
 			datele LONGTEXT
 			)";
 			if( mysqli_query($conn, $sql) ){
@@ -149,7 +151,7 @@ if( !empty($_POST) ){
 			/* Introducem datele administratorului
 			------------------------------------------------*/
 			$secure_pass = md5($admin_password);
-			$sql = "INSERT INTO users VALUES( NULL, '$admin_username', '$secure_pass', '$admin_email' )";
+			$sql = "INSERT INTO users VALUES( NULL, '$admin_username', '$secure_pass', '$admin_email', 'superadmin' )";
 			if( mysqli_query($conn, $sql) ){
 				echo "<div class=\"alert alert-success\">Administratorul a fost inregistrat cu succes. Username: $admin_username | Password: $admin_password.</div>";
 			}

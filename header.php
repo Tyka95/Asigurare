@@ -5,10 +5,11 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	
-	<title>Page</title>
+	<title><?php echo site_title( true ); ?></title>
 	<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-theme.css">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="icon" href="img/asigurare.png">
 	<script type="text/javascript" src="js/jquery-2.2.4.min.js"></script>
 <?php 
 	if( is_admin() ){
@@ -26,7 +27,7 @@
 	<div class="header-in">
 		<div class="row">
 			<div class="col-xs-5">
-				<h1 class="logo"><a href="index.php">Asigurare RCA</a></h1>
+				<h1 class="logo"><a href="index.php"><img src="img/logo2.png"></a></h1>
 			</div>
 			<div class="col-xs-7">
 				<ul class="menu">
@@ -52,14 +53,14 @@
 							$link = 'index.php';
 						}
 						else{
-							$link = 'index.php?page=' .$id;
+							$link = get_page_url( $id );
 						}
 
 						// Marcheaza pagina activa
 						$active = !empty($_GET['page']) && $_GET['page'] == $id ? 'active' : '';
 
 						// Daca suntem pe pagina pricipala
-						if( empty( $_GET['page'] ) && empty( $id ) ){
+						if( empty( $_GET['page'] ) && empty( $id ) && ! is_admin() ){
 							$active = 'active';
 						}
 
@@ -71,12 +72,16 @@
 				</ul>
 			</div>
 		</div>
+		<?php 
+			if( ! is_home() ){
+				echo '<div class="page-title"><h1><span>'. site_title() .'</span></h1></div>';
+			}
+			else{
+				// Maybe a slider?
+			}
+		?>
 	</div>
 </div>
-<div class="site">
 
-<?php 
-	if( ! is_admin() ){
-		echo '<div class="page-title"><h1>'. site_title() .'</h1></div>'; 
-	}
-?>
+
+<div class="site">

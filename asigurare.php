@@ -21,30 +21,45 @@ foreach ($form as $field_id => $field) {
 	
 	// Is field
 	if( is_array( $field ) ){
-		echo '<div class="form-group">';
+
+		$show_if = '';
+		if( !empty($field['show_if']) ){
+			$conditions = (array) $field['show_if'];
+			foreach ($conditions as $condition) {
+				$condition = explode('::', $condition);
+				$show_if .= ' data-show-if-'. htmlspecialchars( $condition[0] ) .'="' . htmlspecialchars( $condition[1] ) .'"';
+			}
+		}
+
+		echo '<div class="form-group"'. $show_if .'>';
 
 		if( !empty( $field[ 'label' ] ) ){
 			echo '<label>'. $field[ 'label' ] .'</label>';
 		}
 
-		$default_value = isset( $field['default'] ) ? $field['default'] : '';
+		if( !empty($_POST['form_date_asigurat']) && isset($_POST[ $field_id ]) ){
+			$value = $_POST[ $field_id ];
+		}
+		else{
+			$value = isset( $field['default'] ) ? $field['default'] : '';
+		}
 		
 		switch ($field[ 'type' ]) {
 			
 			case 'text';
-				echo Field::text( $field_id, $default_value );
+				echo Field::text( $field_id, $value );
 				break;
 
 			case 'number':
-					echo Field::number( $field_id, $default_value, $field );
+					echo Field::number( $field_id, $value, $field );
 				break;
 			
 			case 'select':
-					echo Field::select( $field_id, $default_value, $field[ 'options' ]);
+					echo Field::select( $field_id, $value, $field[ 'options' ]);
 				break;
 			
 			case 'radio':
-					echo Field::radio( $field_id, $default_value, $field[ 'options' ]);
+					echo Field::radio( $field_id, $value, $field[ 'options' ]);
 				break;
 			
 			default:

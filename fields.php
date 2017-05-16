@@ -28,7 +28,9 @@ class Field{
 
 		$out = '';
 
-		if( ! empty($settings) && is_array($settings) ){
+		if( ! empty($settings) && ( is_array($settings) || is_callable($settings) )){
+
+			$settings = is_callable($settings) ? call_user_func($settings) : $settings;
 
 			$out .= '<select class="form-control" name="'. $name .'">';
 

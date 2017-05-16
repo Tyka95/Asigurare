@@ -78,7 +78,11 @@ echo $mesaj;
 	</div>
 	<div class="form-group">
 		<button type="submit" class="btn btn-primary">Trimite</button>
-		<a href="admin.php?section=pagini" class="btn btn-link">Anuleaza</a>
+		<a href="<?php 
+			echo add_query_arg(array(
+				'section' => 'pages',
+			));
+		?>" class="btn btn-link">Anuleaza</a>
 
 	</div>
 </form>

@@ -4,11 +4,20 @@
 	max-width: 600px;
 }
 
+body{
+	background: #60646D;
+	color: #fff;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", 
+	            "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
 .site{
 	max-width: 1000px;
 	margin: 0 auto;
-	padding: 25px 50px;
+	padding: 35px 50px;
 	min-height: 80vh;
+	background: #fff;
+	color: #333;
 }
 
 .admin-section{
@@ -23,9 +32,7 @@
 
 .header{
 	padding: 15px;
-	background: #282830;
 	margin: 0;
-	color: #fff;
 }
 .header .header-in{
 	max-width: 1000px;
@@ -42,7 +49,7 @@
 }
 .header .menu{
 	list-style: none;
-	margin: 0;
+	margin: 10px 0;
 	padding: 0;
 	float: right;
 }
@@ -54,19 +61,35 @@
 .header .menu li a{
 	display: inline-block;
 	margin: 0;
-	padding: 5px 10px;
+	padding: 5px 15px;
 	text-decoration: none;
-	border-radius: 3px;
-	color: #eee;
+	border-radius: 50px;
+	color: rgba(255, 255, 255, 0.8);
+	border: 1px solid transparent;
+	font-size: 12px;
+	text-transform: uppercase;
+}
+.header .menu li a:hover{
+	color: rgba(255, 255, 255, 1);
 }
 .header .menu li a.active{
-	background: #3D8EB9;
 	color: #fff;
+	border-color: rgba(255, 255, 255, 0.4);
+}
+
+.page-title{
+	margin: 0;
+	padding: 0 0 5px;
+	text-align: right;
+}
+
+.page-title h1{
+	font-weight: 300;
+	font-size: 32px;
 }
 
 .footer{
-	padding: 15px;
-	background: #282830;
+	padding: 15px 0 35px 0;
 	margin: 0;
 	color: #fff;
 }
@@ -74,7 +97,6 @@
 	max-width: 1000px;
 	padding: 0 50px;
 	margin: 0 auto;
-	text-align: center;
 }
 .footer .footer-in .copyright{
 	font-size: 14px;
@@ -84,6 +106,7 @@
 	list-style: none;
 	margin: 0;
 	padding: 0;
+	text-align: right;
 }
 .footer .footer-menu li{
 	display: inline-block;
@@ -96,13 +119,12 @@
 	padding: 5px 10px;
 	text-decoration: none;
 	border-radius: 3px;
-	color: #eee;
+	color: rgba(255, 255, 255, 0.6);
 }
 .footer .footer-menu li a.active{
-	background: #3D8EB9;
 	color: #fff;
+	font-weight: 700;
 }
-
 
 .login-form {
 	max-width: 300px;
@@ -111,4 +133,66 @@
 
 h3.form-section{
 	margin-top: 30px;
+}
+
+.service{
+	text-align: center;
+	margin-bottom: 30px;
+}
+.service h3{
+	font-weight: 300;
+}
+
+.service img:hover{
+	background: #dee;
+	border-radius: 50%;
+}
+
+.section-title h2{
+	text-align: center;
+		margin: 0 0 40px 0;
+}
+.home-section{
+	padding: 30px 0;
+	max-width: 90%;
+	margin: 30px auto;
+}
+.home-section .buttons{
+	text-align: center;
+}
+.img-img{
+	margin: 30px 10px;
+}
+
+.img-img h3{
+	text-align: center;
+}
+.img-img img{
+	margin-right: 20px;
+}
+.beneficii{
+	margin: 0 10px;
+}
+.beneficii .table-striped{
+	text-align: center;
+}
+
+.beneficii h3{
+	text-align: center;
+	padding-bottom: 20px;
+}
+.beneficii ul{
+	list-style-type: none;
+	text-align: center;
+}
+
+/*Style for hr*/
+
+.style14 { 
+  border: 0; 
+  height: 1px; 
+  background-image: -webkit-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
+  background-image: -moz-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
+  background-image: -ms-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
+  background-image: -o-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0); 
 }

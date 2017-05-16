@@ -25,13 +25,16 @@ if( !empty($_POST['form_date_asigurat']) ) :
 		echo '<div class="alert alert-danger">Conexiune imposibila la baza de date !!!</div>';
 	}
 
-	$sql = "INSERT INTO asi_auto 
-			(nume_prenume,cod_personal, numar_inmatriculare_document, numar_inregistrare_vehicul, datele)
-			 VALUES ('$nume','$cod_personal','$nr_doc','$nr_vehicul','$datele')";
+	$sql = "INSERT INTO cereri 
+			(nume_prenume,cod_personal, numar_inmatriculare_document, numar_inregistrare_vehicul, status, datele)
+			 VALUES ('$nume','$cod_personal','$nr_doc','$nr_vehicul','pending','$datele')";
 
 	$retval = mysqli_query( $conn, $sql );
 
-	if(! $retval ) {
+	if( ! $retval ) {
+		echo '<pre>';
+		print_r( $retval );
+		echo '</pre>';
 			echo '<div class="alert alert-danger">Nu putem introduce datele in BD</div>';
 	}
 	else{

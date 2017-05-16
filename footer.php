@@ -4,8 +4,11 @@
 <div class="footer">
 	<div class="footer-in">
 		<div class="row">
-			<div class="col-xs-12">
+			<div class="col-xs-6">
 				<div class="copyright">Copyright &copy; <?php date( 'Y' ); ?>. All rights reserved</div>
+			</div>
+			
+			<div class="col-xs-6">
 				<ul class="footer-menu">
 					
 					<?php 
@@ -29,7 +32,7 @@
 							$link = 'admin.php';
 						}
 						else{
-							$link = 'index.php?page=' .$id;
+							$link = get_page_url( $id );
 						}
 
 						// Marcheaza pagina activa
