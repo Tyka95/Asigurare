@@ -3,6 +3,26 @@
 	margin: 50px auto;
 	max-width: 600px;
 }
+.page-install .form-control{
+	border-color: #2d2f33;
+}
+.page-install .install-success{
+	padding: 25px;
+	text-align: center;
+	border-radius: 5px;
+	background: #fff;
+	color: #555;
+}
+.page-install .install-success .install-log-list{
+	text-align: left;
+	margin: 20px 0;
+	padding: 0;
+}
+.page-install .install-success .install-log-list li{
+	margin-bottom: 10px;
+	padding: 5px 15px;
+	list-style: none;
+}
 
 body{
 	background: #60646D;
@@ -20,6 +40,8 @@ body{
 	color: #333;
 }
 
+/* Back end
+----------------*/
 .admin-section{
 	padding: 25px 0;
 }
@@ -30,6 +52,40 @@ body{
 	color: red;
 }
 
+h4.admin-page-title{
+	margin: 10px 0 20px;
+}
+
+h4.admin-page-title .label{
+	float: right;
+	font-weight: 400;
+	padding: 8px;
+	margin: -7px 0 0 0px;
+}
+
+
+.admin-points{
+	overflow: hidden;
+}
+.admin-points .point{
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	text-align: center;
+	color: #666;
+	font-weight: 700;
+	margin: 15px 0;
+}
+
+.admin-points .point img{
+	display: inline-block;
+	margin: 10px 0;
+	max-width: 64px;
+	height: auto;
+}
+
+/* Front end
+-----------------*/
 .header{
 	padding: 15px;
 	margin: 0;
@@ -148,9 +204,17 @@ h3.form-section{
 	border-radius: 50%;
 }
 
-.section-title h2{
+.section-title{
 	text-align: center;
-		margin: 0 0 40px 0;
+	margin: 5px 0 40px;
+}
+.section-title h2{
+	margin: 0;
+}
+.section-title .subheading{
+	font-size: 17px;
+	color: #777;
+	margin-top: 5px;
 }
 .home-section{
 	padding: 30px 0;
@@ -160,39 +224,83 @@ h3.form-section{
 .home-section .buttons{
 	text-align: center;
 }
-.img-img{
-	margin: 30px 10px;
-}
 
-.img-img h3{
-	text-align: center;
-}
-.img-img img{
-	margin-right: 20px;
-}
-.beneficii{
-	margin: 0 10px;
-}
-.beneficii .table-striped{
-	text-align: center;
-}
-
-.beneficii h3{
-	text-align: center;
-	padding-bottom: 20px;
-}
-.beneficii ul{
-	list-style-type: none;
-	text-align: center;
-}
-
-/*Style for hr*/
-
-.style14 { 
+.hr-styled { 
   border: 0; 
   height: 1px; 
   background-image: -webkit-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
   background-image: -moz-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
   background-image: -ms-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
   background-image: -o-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0); 
+}
+
+.form-nice-selector > span {
+  display: inline-block;
+  margin-right: 15px;
+  margin: 5px 5px 5px 0;
+  vertical-align: middle;
+  font-size: 14px;
+  line-height: 24px;
+  min-width: 40px;
+  text-align: center;
+  cursor: pointer;
+  padding: 7px;
+  background: #f7f7f7;
+  border: 2px solid #e1e1e1;
+  border-radius: 4px;
+}
+.form-nice-selector > span:hover {
+  border-color: #a2a2a2;
+}
+.form-nice-selector > span.active {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+.form-nice-selector > span .color-box,
+.form-nice-selector > span .img-box {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin-right: 7px;
+  vertical-align: middle;
+}
+.form-nice-selector > span .img-box {
+  max-height: 24px;
+  width: auto;
+}
+.form-nice-selector > span .img-box img {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: auto;
+  max-width: none;
+  height: 24px;
+}
+.form-nice-selector.large > span {
+  min-width: 100px;
+}
+.form-nice-selector.large > span .color-box {
+  display: block;
+  margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.form-nice-selector.large > span .img-box {
+  max-height: none;
+  display: block;
+  height: auto;
+  margin: 0 auto 10px;
+  text-align: center;
+}
+.form-nice-selector.large > span .img-box img {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 15px;
+}
+
+.persoane_admin_la_volan{
+	padding-top: 10px;
+	padding-bottom: 10px;
 }

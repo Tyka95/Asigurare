@@ -17,7 +17,9 @@ Afiseaza forma
 */
 $form = form_fields();
 
+echo '<div class="row">';
 foreach ($form as $field_id => $field) {
+	$grid = !empty($field['grid']) ? ' '. $field['grid'] : ' col-xs-12';
 	
 	// Is field
 	if( is_array( $field ) ){
@@ -31,10 +33,23 @@ foreach ($form as $field_id => $field) {
 			}
 		}
 
-		echo '<div class="form-group"'. $show_if .'>';
+
+		echo '<div class="form-group'. $grid .'"'. $show_if .'>';
 
 		if( !empty( $field[ 'label' ] ) ){
-			echo '<label>'. $field[ 'label' ] .'</label>';
+			echo '<label>';
+			echo $field[ 'label' ];
+			
+			if( !empty( $field[ 'img_tip' ] ) ){
+				echo '&nbsp;<span 
+					class="glyphicon glyphicon-question-sign" 
+					data-toggle="popover" 
+					title="'. htmlspecialchars( $field[ 'label' ] ) .'" 
+					data-img-tip="'. htmlspecialchars( $field_id ) .'"
+				></span>';
+			}
+			
+			echo '</label>';
 		}
 
 		if( !empty($_POST['form_date_asigurat']) && isset($_POST[ $field_id ]) ){
@@ -55,11 +70,19 @@ foreach ($form as $field_id => $field) {
 				break;
 			
 			case 'select':
-					echo Field::select( $field_id, $value, $field[ 'options' ]);
+					echo Field::select( $field_id, $value, $field);
 				break;
 			
 			case 'radio':
-					echo Field::radio( $field_id, $value, $field[ 'options' ]);
+					echo Field::radio( $field_id, $value, $field);
+				break;
+			
+			case 'nice_selector':
+					echo Field::nice_selector( $field_id, $value, $field);
+				break;
+			
+			case 'persoane_admin_la_volan':
+					echo Field::persoane_admin_la_volan( $field_id, $value);
 				break;
 			
 			default:
@@ -69,14 +92,21 @@ foreach ($form as $field_id => $field) {
 		} // switch
 
 		echo '</div>';
+
 	}
 
 	// .. is section
 	elseif( is_string( $field ) ){
-		echo '<h3 class="form-section">'. $field .'</h3>';
+		echo '<h3 class="form-section'. $grid .'">'. $field .'</h3>';
+	}
+	
+	if( !empty($field['clear_row']) ){
+		echo '</div><div class="row">';
 	}
 
 } // foreach
+
+echo '</div>'; //row;
 
 ?>
 

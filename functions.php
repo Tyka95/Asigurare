@@ -1,14 +1,38 @@
 <?php
 
-// System not installed, yet!
+/* System not installed, yet!
+----------------------------------*/
 if( ! file_exists( dirname(__FILE__) . "/db-config.php" ) && basename( $_SERVER['REQUEST_URI'] ) !== 'install.php' ){
 	header('Location: install.php');
 	exit;
 }
 
-// System is installed!
-require_once dirname(__FILE__) ."/db-config.php";
-include dirname(__FILE__) ."/fields.php";
+/* Save the root directory path in a constant
+------------------------------------------------------*/
+define( 'SITE_ROOT', dirname(__FILE__) . '/' );
+
+/* Save the includes directory path in a constant
+------------------------------------------------------*/
+define( 'INC_DIR', SITE_ROOT . 'includes/' );
+
+/* System is installed!
+----------------------------*/
+require_once dirname(__FILE__) . '/db-config.php';
+
+/* Include core
+--------------------*/
+require_once INC_DIR . 'fields.php';
+require_once INC_DIR . 'class-wp-hook.php';
+require_once INC_DIR . 'plugin.php';
+require_once INC_DIR . 'wp.php';
+
+/* Include PHP Mailer library
+----------------------------------*/
+require_once SITE_ROOT . 'phpmailer/PHPMailerAutoload.php';
+
+/* Adaptare PHPMailer pentru sistemul curent
+-------------------------------------------------*/
+require_once INC_DIR . 'mail-system.php';
 
 
 /*  Conectare la baza de date
@@ -386,11 +410,62 @@ function get_user_by_id( $id = false ){
 	mysqli_close($conn);
 }
 
+function get_user_by_username( $username = false ){
+	$conn     = conectare_la_db();
+	$by       = mysqli_real_escape_string( $conn, strip_tags( $username ) );
+	$sql      = "SELECT * FROM users WHERE username = '$by'";
+	$result   = mysqli_query($conn, $sql);
+	$row      = mysqli_fetch_array($result, MYSQLI_ASSOC);
+
+	return $row;
+	mysqli_close($conn);
+}
+
+function user_is( $username, $type ){
+	$user = get_user_by_username( $username );
+	if( !empty($user['type']) ){
+
+		//Superadmin can do anything
+		if( $user['type'] == 'superadmin'){
+			return true;
+		}
+
+		// Else if is admin
+		elseif( $user['type'] == 'admin' && 'moderator' == $type ){
+			return true;
+		}
+
+		else{
+			return $user['type'] == $type;
+		}
+	}
+	else{
+		return false;
+	}
+}
+
+function current_user_is( $type ){
+	return user_is( $_SESSION['username'], $type );
+}
+
 /* Delete user
 -------------------*/
 function delete_user(){
 	if( is_admin() && !empty($_GET['section']) && 'users' == $_GET['section'] ){
 		if( !empty($_GET['id']) ){
+
+			// Do not allow to delete superadmins
+			if( user_is( $_GET['id'], 'superadmin' ) )
+				return false;
+
+			// Do not allow to delete other user with the same type
+			if( user_is( $_GET['id'], 'admin' ) && current_user_is( 'admin' ) )
+				return false;
+
+			// Only admins can delete users
+			if( ! current_user_is( 'admin' ) )
+				return false;
+
 			$deleted = delete_admin_component( 'users', intval($_GET['id']) );
 			if( !empty($deleted) ){
 				echo '<div class="alert alert-success">Utilizatorul a fost eliminat.</div>';
@@ -407,6 +482,10 @@ function delete_user(){
 function delete_cerere(){
 	if( is_admin() && !empty($_GET['section']) && 'cereri' == $_GET['section'] ){
 		if( !empty($_GET['id']) ){
+
+			if( ! current_user_is( 'moderator' ) )
+				return false;
+
 			$deleted = delete_admin_component( 'cereri', intval($_GET['id']) );
 			if( !empty($deleted) ){
 				echo '<div class="alert alert-success">Cererea a fost eliminata.</div>';
@@ -418,6 +497,25 @@ function delete_cerere(){
 	}
 }
 
+/* Update cerere
+---------------------*/
+function update_cerere_status( $id, $status ){
+	$conn     = conectare_la_db();
+	$option   = intval( $id );
+
+	$sql = "UPDATE cereri SET status = '$status' WHERE id = '$id'";
+	
+	if( mysqli_query($conn, $sql) ){
+		return true;
+	}
+	else{
+		return false;
+	}
+
+	mysqli_close($conn);
+}
+
+
 /* Get cerereby id
 -----------------------*/
 function get_cerere_by_id( $id = false ){
@@ -427,8 +525,112 @@ function get_cerere_by_id( $id = false ){
 	$result   = mysqli_query($conn, $sql);
 	$row      = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
+	if( !empty($row) ){
+		$datele = maybe_unserialize( htmlspecialchars_decode( $row['datele'] ) );
+		unset($row['datele']);
+		$row = array_merge( $row, $datele );
+	}
+
 	return $row;
+
 	mysqli_close($conn);
+}
+
+/* Update or add option
+----------------------------*/
+function update_option( $option, $value ){
+	$conn     = conectare_la_db();
+	$option   = strip_tags( maybe_serialize( $option ) );
+	$value    = htmlspecialchars( mysqli_real_escape_string( $conn, maybe_serialize( $value ) ) );
+
+	$old_value = get_option( $option );
+
+	if( isset($old_value) ){
+		$sql = "UPDATE options SET value = '$value' WHERE option = '$option'";
+	}
+	else{
+		$sql = "INSERT INTO options VALUES( NULL, '$option', '$value' )";
+	}
+	
+	if( mysqli_query($conn, $sql) ){
+		return true;
+	}
+	else{
+		return false;
+	}
+
+	mysqli_close($conn);
+}
+
+/* Update or add option
+----------------------------*/
+function get_option( $option, $default_value = null ){
+	$conn     = conectare_la_db();
+	$option   = strip_tags( maybe_serialize( $option ) );
+	$sql      = "SELECT * FROM options WHERE option = '$option' LIMIT 1";
+	
+	if( $result = mysqli_query($conn, $sql) ){
+		$row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+		if( !isset( $row['value'] ) ){
+			return $default_value;
+		}
+		else{
+			return maybe_unserialize( htmlspecialchars_decode( $row['value'] ) );
+		}
+	}
+	else{
+		return $default_value;
+	}
+
+	mysqli_close($conn);
+}
+
+/* Delete an option
+----------------------------*/
+function delete_option( $option ){
+	$conn     = conectare_la_db();
+	$option   = strip_tags( maybe_serialize( $option ) );
+	$sql      = "DELETE FROM options WHERE option = '$option'";
+	
+	if( $result = mysqli_query($conn, $sql) ){
+		return true;
+	}
+	else{
+		return false;
+	}
+
+	mysqli_close($conn);
+}
+
+/* Source: https://stackoverflow.com/a/43699922/1050262
+------------------------------------------------------------*/
+/**
+ * Get the base URL of the current page. For example, if the current page URL is
+ * "https://example.com/dir/example.php?whatever" this function will return
+ * "https://example.com/dir/" .
+ *
+ * @return string The base URL of the current page.
+ */
+function get_site_url() {
+
+	$protocol = filter_input(INPUT_SERVER, 'HTTPS');
+	if (empty($protocol)) {
+		$protocol = "http";
+	}
+
+	$host = filter_input(INPUT_SERVER, 'HTTP_HOST');
+
+	$request_uri_full = filter_input(INPUT_SERVER, 'REQUEST_URI');
+	$last_slash_pos = strrpos($request_uri_full, "/");
+	if ($last_slash_pos === FALSE) {
+		$request_uri_sub = $request_uri_full;
+	}
+	else {
+		$request_uri_sub = substr($request_uri_full, 0, $last_slash_pos + 1);
+	}
+
+	return $protocol . "://" . $host . $request_uri_sub;
+
 }
 
 
@@ -443,17 +645,17 @@ function form_fields(){
 
 		'Datele asiguratului',
 
- 		'statut_juridic' => array( 
- 			'label' => 'Statutul juridic al asiguratului',
-			'type' => 'select',
+		'statut_juridic' => array( 
+			'label' => 'Statutul juridic al asiguratului',
+			'type' => 'nice_selector',
 			'options' => array(
 				'fizica' => 'Persoana Fizica',
 				'juridica' => 'Persoana Juridica',
 			),
- 		),
+		),
 		'resedinta_sofer' => array( 
 			'label' => 'Reședința șoferului/asiguratului',
-			'type' => 'select',
+			'type' => 'nice_selector',
 			'options' => array(
 				'mun_chisinau' => 'Mun. Chisinau',
 				'mun_balti' => 'Mun. Balti',
@@ -462,7 +664,7 @@ function form_fields(){
 		),
 		'virsta_conducator' => array( 
 			'label' => 'Vîrsta conducătorului auto (inclusiv persoanele admise la volan)', 
-			'type' => 'select',
+			'type' => 'nice_selector',
 			'options' => array(
 				'23-' => 'pina la 23 ani',
 				'23+' => 'peste 23 ani',
@@ -487,7 +689,7 @@ function form_fields(){
 		),
 		'pensionar' => array( 
 			'label' => 'Sunteţi pensionar sau aveţi grad de invaliditate?',
-			'type' => 'radio',
+			'type' => 'nice_selector',
 			'options' => array(
 				'nu' => 'Nu',
 				'da' => 'Da',
@@ -496,7 +698,7 @@ function form_fields(){
 		),
 		'rca_contract_vechi' => array( 
 			'label' => 'Ați avut încheiat un contract de asigurare RCA în ultimii 2 ani?', 
-			'type' => 'radio',
+			'type' => 'nice_selector',
 			'options' => array(
 				'nu' => 'Nu',
 				'da' => 'Da',
@@ -505,7 +707,7 @@ function form_fields(){
 		),
 		'asigurat_precedent_juridic' => array( 
 			'label' => 'Autovehiculul dat a fost asigurat şi anul precedent de această persoană juridică?', 
-			'type' => 'radio',
+			'type' => 'nice_selector',
 			'options' => array(
 				'nu' => 'Nu',
 				'da' => 'Da',
@@ -607,7 +809,7 @@ function form_fields(){
 		),
 		'inmatriculat_tara' => array( 
 			'label' => 'Vehicul înmatriculat în', 
-			'type' => 'select',
+			'type' => 'nice_selector',
 			'options' => array(
 				'moldova' => 'Republica Moldova',
 				'strainatate' => 'Strainatate',
@@ -623,7 +825,7 @@ function form_fields(){
 		),
 		'carte_verde_europa' => array( 
 			'label' => 'Dețineți Carte Verde pentru Europa (12 luni)?', 
-			'type' => 'select',
+			'type' => 'nice_selector',
 			'options' => array(
 				'nu' => 'Nu',
 				'da' => 'Da',
@@ -650,6 +852,7 @@ function form_fields(){
 				'11l' => '11 luni',
 				'12l' => '12 luni',
 			),
+			'grid' => 'col-sm-4',
 		),
 		'compania_asigurare' => array( 
 			'label' => 'Alege Compania de Asigurare', 
@@ -664,17 +867,56 @@ function form_fields(){
 				'grawe_carat' => 'Grawe Carat',
 				'klassika' => 'Klassika',
 			),
+			'grid' => 'col-sm-8',
+			'clear_row' => true,
 		),
 
 		'Formularul de comanda',
 
+		'tip_document' => array( 
+			'label' => 'Tip document',
+			'type' => 'nice_selector',
+			'size' => 'large',
+			'options' => array(
+				'vechi' => array(
+					'label' => 'Certificat de înmatriculare tip vechi',
+					'img' => 'img/vechi.jpg',
+				),
+				'nou' => array(
+					'label' => 'Certificat de înmatriculare tip nou',
+					'img' => 'img/nou.jpg',
+				),
+				'temporar' => array(
+					'label' => 'Certificat de înmatriculare temporar',
+					'img' => 'img/temporar.jpg',
+				),
+			),
+		),
+
+		'email' => array( 
+			'label' => 'Email',
+			'type' => 'text',
+			'grid' => 'col-sm-6',
+		),
+
+		'telefon' => array( 
+			'label' => 'Telefon',
+			'type' => 'text',
+			'grid' => 'col-sm-6',
+		),
+
 		'nume_prenume' => array( 
 			'label' => 'Numele și Prenume',
 			'type' => 'text',
+			'grid' => 'col-sm-6',
+			'img_tip' => true,
 		),
 		'cod_personal' => array( 
 			'label' => 'Codul personal',
 			'type' => 'text',
+			'grid' => 'col-sm-6',
+			'clear_row' => true,
+			'img_tip' => true,
 		),
 		'drept_posesiune_vehicul' => array( 
 			'label' => 'Drept de posesiune a autovehiculului', 
@@ -685,14 +927,20 @@ function form_fields(){
 				'locatiune' => 'Locatiune (comodat)',
 				'procura' => 'Procura si alte titluri',
 			),
+			'grid' => 'col-sm-6',
 		),
 		'numar_inmatriculare_document' => array( 
 			'label' => 'Numărul de înmatriculare al documentului',
 			'type' => 'text',
+			'grid' => 'col-sm-6',
+			'clear_row' => true,
+			'img_tip' => true,
 		),
 		'numar_inregistrare_vehicul' => array( 
 			'label' => 'Numărul de înregistrare al autovehiculului', 
 			'type' => 'text',
+			'grid' => 'col-sm-6',
+			'img_tip' => true,
 		),
 		'an_fabricatie' => array( 
 			'label' => 'An fabricație',
@@ -705,40 +953,57 @@ function form_fields(){
 				}
 				return $years;
 			},
+			'grid' => 'col-sm-6',
+			'clear_row' => true,
 		),
 		'marca' => array( 
 			'label' => 'Marca/Model', 
 			'type' => 'text',
+			'grid' => 'col-sm-3',
 		),
 		'tip_autovehicul' => array( 
 			'label' => 'Tipul autovehiculului', 
 			'type' => 'text',
+			'grid' => 'col-sm-3',
 		),
 		'capacitate_cilindrica' => array( 
 			'label' => 'Capacitatea cilindrică', 
 			'type' => 'number',
+			'grid' => 'col-sm-3',
 		),
 		'masa_proprie' => array( 
 			'label' => 'Masa proprie', 
 			'type' => 'number',
+			'grid' => 'col-sm-3',
+			'clear_row' => true,
 		),
 		'masa_max_autorizata' => array( 
 			'label' => 'Masa maximă autorizată',
 			'type' => 'number',
+			'grid' => 'col-sm-3',
 		),
 		'numar_locuri' => array( 
 			'label' => 'Numărul de locuri', 
 			'type' => 'number',
 			'min' => 2,
 			'max' => 20,
+			'grid' => 'col-sm-3',
 		),
 		'numar_caroserie' => array( 
 			'label' => 'Numărul caroseriei', 
 			'type' => 'text',
+			'grid' => 'col-sm-3',
 		),
 		'numar_motor' => array( 
 			'label' => 'Numărul motorului',	 
 			'type' => 'text',
+			'grid' => 'col-sm-3',
+			'clear_row' => true,
+		),	
+		'persoane_admin_la_volan' => array( 
+			'label' => 'Persoane admise la volan',	 
+			'type' => 'persoane_admin_la_volan',
+			'clear_row' => true,
 		),	
 	);
 }
@@ -753,6 +1018,25 @@ function form_label( $id ){
 		return $id;
 	}
 }
+
+function form_value_label( $field_id, $saved_value ){
+	$label = $saved_value;
+
+	$fields = form_fields();
+
+	$type = $fields[ $field_id ]['type'];
+	$options = !empty($fields[ $field_id ]['options']) ? $fields[ $field_id ]['options'] : false;
+	
+	if( in_array( $type, array( 'select', 'radio', 'nice_selector' ) ) && is_array( $options ) ){
+		$label = $options[ $saved_value ];
+		if( is_array( $label ) ){
+			$label = $label['label'];
+		}
+	}
+
+	return $label;
+}
+
 /* Include headerul(partea de sus)
 ------------------------------------------------*/
 function get_header(){
@@ -873,158 +1157,4 @@ function calculator_rca(){
 
 
 	echo round( 715 * $k1 * $k2 * $k3 * $k4 * $k5 );
-}
-
-
-
-/*
--------------------------------------------------------------------------------
-Functions from WordPress.ORG
--------------------------------------------------------------------------------
-*/
-
-/*
--------------------------------------------------------------------------------
-Source: https://developer.wordpress.org/reference/functions/add_query_arg/
-Slightly modified!!
--------------------------------------------------------------------------------
-*/
-function add_query_arg() {
-	$args = func_get_args();
-	if ( is_array( $args[0] ) ) {
-		if ( count( $args ) < 2 || false === $args[1] )
-			$uri = $_SERVER['REQUEST_URI'];
-		else
-			$uri = $args[1];
-	} else {
-		if ( count( $args ) < 3 || false === $args[2] )
-			$uri = $_SERVER['REQUEST_URI'];
-		else
-			$uri = $args[2];
-	}
- 
-	if ( $frag = strstr( $uri, '#' ) )
-		$uri = substr( $uri, 0, -strlen( $frag ) );
-	else
-		$frag = '';
- 
-	if ( 0 === stripos( $uri, 'http://' ) ) {
-		$protocol = 'http://';
-		$uri = substr( $uri, 7 );
-	} elseif ( 0 === stripos( $uri, 'https://' ) ) {
-		$protocol = 'https://';
-		$uri = substr( $uri, 8 );
-	} else {
-		$protocol = '';
-	}
- 
-	if ( strpos( $uri, '?' ) !== false ) {
-		list( $base, $query ) = explode( '?', $uri, 2 );
-		$base .= '?';
-	} elseif ( $protocol || strpos( $uri, '=' ) === false ) {
-		$base = $uri . '?';
-		$query = '';
-	} else {
-		$base = '';
-		$query = $uri;
-	}
- 
-	parse_str( $query, $qs );
-	if ( get_magic_quotes_gpc() ){
-		$qs = stripslashes_deep( $qs );
-	}
-
-	$qs = urlencode_deep( $qs ); // this re-URL-encodes things that were already in the query string
-	if ( is_array( $args[0] ) ) {
-		foreach ( $args[0] as $k => $v ) {
-			$qs[ $k ] = $v;
-		}
-	} else {
-		$qs[ $args[0] ] = $args[1];
-	}
- 
-	foreach ( $qs as $k => $v ) {
-		if ( $v === false )
-			unset( $qs[$k] );
-	}
- 
-	$ret = build_query( $qs );
-	$ret = trim( $ret, '?' );
-	$ret = preg_replace( '#=(&|$)#', '$1', $ret );
-	$ret = $protocol . $base . $ret . $frag;
-	$ret = rtrim( $ret, '?' );
-	return $ret;
-}
-
-/* Source: https://developer.wordpress.org/reference/functions/remove_query_arg/
--------------------------------------------------------------------------------------*/
-function remove_query_arg( $key, $query = false ) {
-	if ( is_array( $key ) ) { // removing multiple keys
-		foreach ( $key as $k )
-			$query = add_query_arg( $k, false, $query );
-		return $query;
-	}
-	return add_query_arg( $key, false, $query );
-}
-
-/* Source: https://developer.wordpress.org/reference/functions/urlencode_deep/
------------------------------------------------------------------------------------*/
-function urlencode_deep( $value ) {
-	return map_deep( $value, 'urlencode' );
-}
-
-/* Source: https://developer.wordpress.org/reference/functions/map_deep/
------------------------------------------------------------------------------*/
-function map_deep( $value, $callback ) {
-	if ( is_array( $value ) ) {
-		foreach ( $value as $index => $item ) {
-			$value[ $index ] = map_deep( $item, $callback );
-		}
-	} elseif ( is_object( $value ) ) {
-		$object_vars = get_object_vars( $value );
-		foreach ( $object_vars as $property_name => $property_value ) {
-			$value->$property_name = map_deep( $property_value, $callback );
-		}
-	} else {
-		$value = call_user_func( $callback, $value );
-	}
- 
-	return $value;
-}
-
-/* Source: https://developer.wordpress.org/reference/functions/build_query/
---------------------------------------------------------------------------------*/
-function build_query( $data ) {
-	return _http_build_query( $data, null, '&', '', false );
-}
-
-/* Source: https://developer.wordpress.org/reference/functions/_http_build_query/
---------------------------------------------------------------------------------------*/
-function _http_build_query( $data, $prefix = null, $sep = null, $key = '', $urlencode = true ) {
-	$ret = array();
- 
-	foreach ( (array) $data as $k => $v ) {
-		if ( $urlencode)
-			$k = urlencode($k);
-		if ( is_int($k) && $prefix != null )
-			$k = $prefix.$k;
-		if ( !empty($key) )
-			$k = $key . '%5B' . $k . '%5D';
-		if ( $v === null )
-			continue;
-		elseif ( $v === false )
-			$v = '0';
- 
-		if ( is_array($v) || is_object($v) )
-			array_push($ret,_http_build_query($v, '', $sep, $k, $urlencode));
-		elseif ( $urlencode )
-			array_push($ret, $k.'='.urlencode($v));
-		else
-			array_push($ret, $k.'='.$v);
-	}
- 
-	if ( null === $sep )
-		$sep = ini_get('arg_separator.output');
- 
-	return implode($sep, $ret);
 }

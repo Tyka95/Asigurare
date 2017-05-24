@@ -4,22 +4,20 @@
 if( !empty($_GET['action']) && $_GET['action'] == 'delete' ){
 	delete_cerere();
 }
+/* Vizualizeaza cererea
+----------------------------*/
 elseif( !empty($_GET['action']) && $_GET['action'] == 'view' && !empty($_GET['id']) ){
 	if( $cerere = get_cerere_by_id( intval($_GET['id']) ) ){
 	
-		$date = unserialize( htmlspecialchars_decode( $cerere['datele'] ) );
-		unset($cerere['datele']);
-
-		$date = array_merge( $date, $cerere );
-
 		$form = form_fields();
 
+		echo '<h2>Detalii cerere</h2>';
 		echo '<table class="table">';
 
 		foreach ($form as $field_id => $field) {
 			
 			// Is field
-			if( is_array( $field ) && !empty($date[ $field_id ]) ){
+			if( is_array( $field ) && !empty($cerere[ $field_id ]) ){
 				echo '<tr class="row">';
 
 					echo '<td class="col-xs-6">';
@@ -29,7 +27,7 @@ elseif( !empty($_GET['action']) && $_GET['action'] == 'view' && !empty($_GET['id
 					echo '</td>';
 
 					echo '<td class="col-xs-6">';
-						echo $date[ $field_id ];
+						echo form_value_label( $field_id, $cerere[ $field_id ] );
 					echo '</td>';
 				echo '</tr>';
 			}
@@ -44,6 +42,51 @@ elseif( !empty($_GET['action']) && $_GET['action'] == 'view' && !empty($_GET['id
 		} // foreach
 		
 		echo '</table>';
+
+
+		if( !empty($_POST['verificare_cerere']) ){
+			if( $_POST['status'] == 'accepted' ){
+				do_action( 'cerere_acceptata', intval($_GET['id']), $_POST['message'] );
+				update_cerere_status( $_GET['id'], 'accepted' );
+			}
+			elseif( $_POST['status'] == 'rejected' ){
+				do_action( 'cerere_respinsa', intval($_GET['id']), $_POST['message'] );
+				update_cerere_status( $_GET['id'], 'rejected' );
+			}
+			else{
+				update_cerere_status( $_GET['id'], 'pending' );
+			}
+		}
+
+
+		echo '
+		<h2>Verificare cerere</h2>
+
+		<form action="" method="post">
+			
+			<div class="form-group">
+				<label>Mesaj pentru utilizator</label>
+				'. Field::textarea('message', '', array(
+					'rows' => 10,
+					'class' => 'admin-textarea',
+				)) .'
+			</div>
+
+			<div class="form-group">
+				<label>Satus</label>
+				'. Field::nice_selector('status', $cerere['status'], array(
+					'pending' => 'In asteptare',
+					'accepted' => 'Aprobat',
+					'rejected' => 'Respins',	
+				)) .'
+			</div>
+
+			<button type="submit" class="btn btn-primary">Trimite</button>
+
+			<input type="hidden" name="verificare_cerere" value="1" />
+
+		</form>
+		';
 
 	}
 }
@@ -80,7 +123,7 @@ else{
 						)) .'" title="Vizualizeaza">'. $value .'</a></td>';
 					}
 					elseif( 'status' == $key){
-						if( 'aproved' == $value ){
+						if( 'accepted' == $value ){
 							$status = 'success';
 							$status_name = 'Aprobat';
 						}

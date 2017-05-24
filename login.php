@@ -9,7 +9,7 @@
 		
 		<div class="form-group">
 			<label>Nume Utilizator:</label>
-			<?php echo Field::text('username', $username); ?>
+			<?php echo Field::text('username', ''); ?>
 		</div>
 
 		<div class="form-group">
@@ -18,6 +18,8 @@
 		</div>
 		
 		<button type="submit" class="btn btn-primary">Trimite</button>
+
+		<input type="hidden" name="authentication_form" value="1" />
 	
 	</form>
 

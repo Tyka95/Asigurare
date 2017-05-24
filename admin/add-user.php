@@ -92,25 +92,24 @@ if( !empty( $user_created ) && !empty($user_created['success']) ){
 // Afisam forma.
 ?>
 <form  method="post">
-<h3>Datele Utilizatorului</h3>
 
 	<div class="form-group">
-		<label>Numele utilizatorului</label>
+		<label>Nume</label>
 		<?php echo Field::text('username', $username); ?>
 	</div>
 
 	<div class="form-group">
-		<label>Parola utilizatorului</label>
+		<label>Parola</label>
 		<?php echo Field::text('password', '', 'password'); ?>
 	</div>
 
 	<div class="form-group">
-		<label>Emailul utilizatorului</label>
+		<label>Email</label>
 		<?php echo Field::text('email', $email,'email'); ?>
 	</div>
 
 	<div class="form-group">
-		<label>Tipul utilizatorului</label>
+		<label>Tip</label>
 		<?php echo Field::radio( 'type', $type, array(
 			'moderator' => 'Moderator',
 			'admin'  => 'Administrator',

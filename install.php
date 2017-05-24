@@ -33,6 +33,7 @@ $db_name        = '';
 $admin_username = '';
 $admin_password = '';
 $admin_email    = '';
+$site_title    = '';
 $errors         = array();
 
 
@@ -85,7 +86,14 @@ if( !empty($_POST) ){
 		$errors['admin-email'] = '<div class="alert alert-danger">Introduceti Administrator email.</div>';
 	}
 
-	if( !empty($db_host) && !empty($db_username) && !empty($db_name) && !empty( $admin_username ) && !empty( $admin_password ) && !empty( $admin_email )  ){
+	if( !empty($_POST['site-title']) ){
+		$site_title = strip_tags($_POST['site-title']);
+	}
+	else{
+		$errors['site-title'] = '<div class="alert alert-danger">Introduceti titlul site-ului.</div>';
+	}
+
+	if( !empty($db_host) && !empty($db_username) && !empty($db_name) && !empty( $admin_username ) && !empty( $admin_password ) && !empty( $admin_email ) && !empty( $site_title )  ){
 
 		/* Conectare la BD
 		------------------------------------------------*/
@@ -96,6 +104,9 @@ if( !empty($_POST) ){
 			$errors['conexiune-imposibila'] = '<div class="alert alert-danger">Conexiune imposibila!</div>';
 		}
 		else{
+			$success_msg = array();
+			$error_msg = array();
+
 			/* Creaza tabela pentru pagini
 			------------------------------------------------*/
 			$sql = "CREATE TABLE pages (
@@ -107,13 +118,13 @@ if( !empty($_POST) ){
 			meniu VARCHAR(30)
 			)";
 			if( mysqli_query($conn, $sql) ){
-				echo '<div class="alert alert-success">Tabelul "pages" a fost creat.</div>';
+				$success_msg[] = 'Tabelul "pages" a fost creat.';
 			}
 			else{
-				echo '<div class="alert alert-danger">Eroare la crearea tabelului "pages".</div>';
+				$error_msg[] = 'Eroare la crearea tabelului "pages".';
 			}
 
-			/* Creaza tabela pentru administrator
+			/* Creaza tabela pentru utilizatori
 			------------------------------------------------*/
 			$sql = "CREATE TABLE users (
 			id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
@@ -123,13 +134,13 @@ if( !empty($_POST) ){
 			type VARCHAR(255)
 			)";
 			if( mysqli_query($conn, $sql) ){
-				echo '<div class="alert alert-success">Tabelul "users" a fost creat.</div>';
+				$success_msg[] = 'Tabelul "users" a fost creat.';
 			}
 			else{
-				echo '<div class="alert alert-danger">Eroare la crearea tabelului "users".</div>';
+				$error_msg[] = 'Eroare la crearea tabelului "users".';
 			}
 
-			/* Creaza tabela pentru date_asigurat
+			/* Creaza tabela pentru cereri
 			------------------------------------------------*/
 			$sql = "CREATE TABLE cereri(
 			id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -141,10 +152,24 @@ if( !empty($_POST) ){
 			datele LONGTEXT
 			)";
 			if( mysqli_query($conn, $sql) ){
-				echo '<div class="alert alert-success">Tabelul "asigurare" a fost creat.</div>';
+				$success_msg[] = 'Tabelul "cereri" a fost creat.';
 			}
 			else{
-				echo '<div class="alert alert-danger">Eroare la crearea tabelului "asigurare".</div>';
+				$error_msg[] = 'Eroare la crearea tabelului "cereri".';
+			}
+
+			/* Creaza tabela pentru optiuni
+			------------------------------------------------*/
+			$sql = "CREATE TABLE options(
+			id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			option VARCHAR(255),
+			value LONGTEXT
+			)";
+			if( mysqli_query($conn, $sql) ){
+				$success_msg[] = 'Tabelul "options" a fost creat.';
+			}
+			else{
+				$error_msg[] = 'Eroare la crearea tabelului "options".';
 			}
 
 	
@@ -153,10 +178,10 @@ if( !empty($_POST) ){
 			$secure_pass = md5($admin_password);
 			$sql = "INSERT INTO users VALUES( NULL, '$admin_username', '$secure_pass', '$admin_email', 'superadmin' )";
 			if( mysqli_query($conn, $sql) ){
-				echo "<div class=\"alert alert-success\">Administratorul a fost inregistrat cu succes. Username: $admin_username | Password: $admin_password.</div>";
+				$success_msg[] = "Administratorul a fost inregistrat cu succes.<br> Username: $admin_username | Password: $admin_password.";
 			}
 			else{
-				echo '<div class="alert alert-danger">Eroare inregistrarea administratorului.</div>';
+				$error_msg[] = 'Eroare inregistrarea administratorului.';
 			}
 
 			/* Inchidem conexiunea
@@ -174,7 +199,34 @@ define('DB_NAME',     '" . $db_name ."');";
 			// Creaza fisierul si adauga continutul
 			file_put_contents('db-config.php', $content);
 
-			echo '<a href="index.php" class="btn btn-primary">Continua</a>';
+			echo '
+			<div class="install-success">
+				<img src="img/success.png" alt="" />
+				<h1>Instalare reușită</h1><ul class="install-log-list">';
+				
+				if( !empty($success_msg) ){
+					foreach ($success_msg as $msg) {
+						echo '<li class="bg-success">'. $msg .'</li>';
+					}
+				}
+
+				if( !empty($error_msg) ){
+					foreach ($error_msg as $msg) {
+						echo '<li class="bg-danger">'. $msg .'</li>';
+					}
+				}
+
+			echo '</ul>
+			<a href="index.php" class="btn btn-primary">Continuare</a>
+			</div>
+			';
+
+			// Instalarea a fost efectuata cu success. Acum putem include functions.php si
+			// de asemenea putem introduce datele implicite in DB.
+			require_once dirname(__FILE__) . "/functions.php";
+
+			update_option( 'site_title', $_POST['site-title'] );
+			update_option( 'site_email', $_POST['admin-email'] );
 
 		}
 	}
@@ -211,6 +263,13 @@ if( empty($_POST) || !empty($errors) ) :
 			<?php if( !empty($errors['db-name']) ) echo $errors['db-name']; ?>
 		</div>
 
+		<h3 class="form-section">Site details</h3>
+		<div class="form-group">
+			<label>Site title</label>
+			<input class="form-control" type="text" name="site-title" value="<?php echo $site_title; ?>"/>
+			<?php if( !empty($errors['site-title']) ) echo $errors['site-title']; ?>
+		</div>
+
 		<h3 class="form-section">Administrator details</h3>
 		<div class="form-group">
 			<label>Administrator Username</label>
@@ -227,6 +286,7 @@ if( empty($_POST) || !empty($errors) ) :
 			<input class="form-control" type="email" name="admin-email" value="<?php echo $admin_email; ?>"/>
 			<?php if( !empty($errors['admin-email']) ) echo $errors['admin-email']; ?>
 		</div>
+
 		<button type="submit" class="btn btn-primary">Trimite</button>
 	</form>
 
