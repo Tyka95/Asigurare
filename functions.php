@@ -855,7 +855,7 @@ function form_fields(){
 			'grid' => 'col-sm-4',
 		),
 		'compania_asigurare' => array( 
-			'label' => 'Alege Compania de Asigurare', 
+			'label' => 'Compania de Asigurare', 
 			'type' => 'select',
 			'options' => array(
 				'moldasig' => 'Moldasig',
@@ -1035,6 +1035,128 @@ function form_value_label( $field_id, $saved_value ){
 	}
 
 	return $label;
+}
+
+function process_form_date_asigurat(){
+	if( !empty($_POST['form_date_asigurat']) ) :
+		
+		$data = $_POST;
+
+
+		/* Escape data
+		-------------------*/
+		$data['email'] = htmlspecialchars($data['email']);
+		$data['telefon'] = htmlspecialchars($data['telefon']);
+		$data['nume_prenume'] = htmlspecialchars($data['nume_prenume']);
+		$data['cod_personal'] = htmlspecialchars($data['cod_personal']);
+		$data['numar_inmatriculare_document'] = htmlspecialchars($data['numar_inmatriculare_document']);
+		$data['numar_inregistrare_vehicul'] = htmlspecialchars($data['numar_inregistrare_vehicul']);
+
+
+		/* Verificare date
+		-----------------------*/
+		$errors = array();
+
+		$fields = array( 
+			'email',
+			'telefon',
+			'nume_prenume',
+			'cod_personal',
+			'numar_inmatriculare_document',
+			'numar_inregistrare_vehicul', 
+			'marca',
+			'tip_autovehicul',
+			'capacitate_cilindrica',
+			'masa_proprie',
+			'masa_max_autorizata',
+			'numar_locuri',
+			'numar_caroserie',
+			'numar_motor',
+			'persoane_admin_la_volan',
+		);
+
+		foreach ($fields as $field) {
+			if( empty( $data[ $field ] ) )
+				$errors[ $field ] = 'Introduceti "' . form_label( $field ) . '".';
+		}
+
+
+		if( !empty($errors) )
+			return $errors;
+
+		
+		/* Conectare la BD
+		------------------------------*/
+		$conn = conectare_la_db();
+
+		if( ! $conn ){
+			$errors = 'Conexiune imposibila la baza de date!';
+		}
+
+		if( !empty($errors) )
+			return $errors;
+
+
+		/* Pregatim coloanele principale
+		-------------------------------------*/
+		$email        = htmlspecialchars($data['email']);
+		$telefon      = htmlspecialchars($data['telefon']);
+		$nume         = htmlspecialchars($data['nume_prenume']);
+		$cod_personal = htmlspecialchars($data['cod_personal']);
+		$nr_doc       = htmlspecialchars($data['numar_inmatriculare_document']);
+		$nr_vehicul   = htmlspecialchars($data['numar_inregistrare_vehicul']);
+
+
+		/* Serialize data and escape
+		---------------------------------*/
+		$datele = htmlspecialchars( serialize( $data ) );
+
+
+		/* Introduce datele in BD
+		------------------------------*/
+		$sql = "INSERT INTO cereri (
+			email,
+			telefon,
+			nume_prenume,
+			cod_personal, 
+			numar_inmatriculare_document, 
+			numar_inregistrare_vehicul, 
+			status, 
+			datele
+		)
+		VALUES (
+			'$email',
+			'$telefon',
+			'$nume',
+			'$cod_personal',
+			'$nr_doc',
+			'$nr_vehicul',
+			'pending',
+			'$datele'
+		)";
+
+		$retval = mysqli_query( $conn, $sql );
+
+		if( ! $retval ) {
+			$errors[] = 'Nu putem introduce datele in BD';
+		}
+		else{
+			do_action( 'cerere_inregistrata_cu_success', $data );
+		}
+
+		mysqli_close($conn);
+
+
+		/* Return response
+		-----------------------*/
+		if( !empty($errors) ){
+			return $errors;
+		}
+		else{
+			return true; 
+		}
+
+	endif;
 }
 
 /* Include headerul(partea de sus)

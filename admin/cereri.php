@@ -95,76 +95,105 @@ else{
 	-------------------------*/
 	$conn = conectare_la_db();
 
-	$query = "SELECT  * FROM cereri";
+	$page = !empty($_GET['pag']) && intval($_GET['pag']) > 0 ? intval( $_GET['pag'] ) : 1;
+	$limit = 10;
+	$offset = ($limit*$page)-$limit;
 
-	echo '<table class="table table-striped">';
-	echo '<tr>
-		<th>ID</th>
-		<th>'. form_label( 'nume_prenume' ) .'</th>
-		<th>'. form_label( 'cod_personal' ) .'</th>
-		<th>'. form_label( 'numar_inmatriculare_document' ) .'</th>
-		<th>'. form_label( 'numar_inregistrare_vehicul' ) .'</th>
-		<th>Status</th>
-		<th>Opțiuni</th>
-	</tr>';
-
+	$query = "SELECT * FROM cereri ORDER BY id DESC LIMIT $limit OFFSET $offset";
 	if( $result = $conn->query($query)) {
-		
-		/* fetch associative array
-		-------------------------------*/
-		while($row = $result->fetch_assoc()){
-			echo '<tr>';
-				foreach ($row as $key => $value) {
-					if( 'nume_prenume' == $key){
-						echo '<td><a href="'. add_query_arg(array(
-							'section' => 'cereri',
-							'action' => 'view',
-							'id' => $row['id'],
-						)) .'" title="Vizualizeaza">'. $value .'</a></td>';
-					}
-					elseif( 'status' == $key){
-						if( 'accepted' == $value ){
-							$status = 'success';
-							$status_name = 'Aprobat';
-						}
-						elseif( 'rejected' == $value ){
-							$status = 'danger';
-							$status_name = 'Respins';
-						}
-						else{
-							$status = 'default';
-							$status_name = 'In asteptare';
-						}
+		$have_results = intval($result->num_rows) > 1;
 
-						echo '<td> <span class="label label-'. $status .'">'. $status_name .'</span></td>';
-					}
+		if( $have_results ){
 
-					// Excludem coloana 'datele' deoarece e serializat.
-					elseif( 'datele' !== $key){
-						echo '<td>'. $value .'</td>';
-					}
+			echo '<table class="table table-striped">';
+			echo '<tr>
+				<th>ID</th>
+				<th>Date</th>
+				<th>Detalii</th>
+				<th>Status</th>
+				<th>Opțiuni</th>
+			</tr>';
 
-				}
-				echo '<td style="min-width: 100px;">
-					<a class="btn btn-success btn-xs" href="'. add_query_arg(array(
+			/* fetch associative array
+			-------------------------------*/
+			while($row = $result->fetch_assoc()){
+				echo '<tr>';
+
+					echo '<td>#'. $row['id'] .'</td>';
+
+					echo '<td><a href="'. add_query_arg(array(
 						'section' => 'cereri',
 						'action' => 'view',
 						'id' => $row['id'],
-					)) .'" title="Vizualizeaza"><span class="glyphicon glyphicon-eye-open"></span></a>
-					<a class="btn btn-danger btn-xs" href="'. add_query_arg(array(
-						'section' => 'cereri',
-						'action' => 'delete',
-						'id' => $row['id'],
-					)) .'" title="Sterge" data-confirm-delete="Sunteti sigur ca doriti sa stergeti aceasta cerere?"><span class="glyphicon glyphicon-trash"></span></a>
-				</td>';
+					)) .'" title="Vizualizeaza">';
+
+					echo '<h4>'. $row['nume_prenume'] .'</h4>';
+					echo '</a>';
+
+					echo '<div class="text-muted">'. $row['email'] .' <br> '. $row['telefon'] .'</div>';
+
+					echo '</td>';
 				
-			echo '</tr>';
+
+					echo '<td>
+					<strong>'. form_label( 'cod_personal' ) .'</strong>
+					<div>'. $row['cod_personal'] .'</div>
+					<strong>'. form_label( 'numar_inmatriculare_document' ) .'</strong>
+					<div>'. $row['numar_inmatriculare_document'] .'</div>
+					<strong>'. form_label( 'numar_inregistrare_vehicul' ) .'</strong>
+					<div>'. $row['numar_inregistrare_vehicul'] .'</div>
+					</td>';
+
+					if( 'accepted' == $row['status'] ){
+						$status = 'success';
+						$status_name = 'Aprobat';
+					}
+					elseif( 'rejected' == $row['status'] ){
+						$status = 'danger';
+						$status_name = 'Respins';
+					}
+					else{
+						$status = 'default';
+						$status_name = 'In asteptare';
+					}
+
+					echo '<td> <span class="label label-'. $status .'">'. $status_name .'</span></td>';
+
+					echo '<td style="min-width: 100px;">
+						<a class="btn btn-success btn-xs" href="'. add_query_arg(array(
+							'section' => 'cereri',
+							'action' => 'view',
+							'id' => $row['id'],
+						)) .'" title="Vizualizeaza"><span class="glyphicon glyphicon-eye-open"></span></a>
+						<a class="btn btn-danger btn-xs" href="'. add_query_arg(array(
+							'section' => 'cereri',
+							'action' => 'delete',
+							'id' => $row['id'],
+						)) .'" title="Sterge" data-confirm-delete="Sunteti sigur ca doriti sa stergeti aceasta cerere?"><span class="glyphicon glyphicon-trash"></span></a>
+					</td>';
+					
+				echo '</tr>';
+			}
+		}
+		else{
+			echo '<div class="alert alert-warning">Nu sunt rezultate</div>';
 		}
 		//eliberam memoria din $result
 		$result->free();
 
 	}
+	
 	$conn->close();
 
 	echo '</table>';
+
+	echo '<div class="buttons-group">';
+		if( $page > 1 ){
+			echo '<a class="btn btn-default pull-left" href="'. add_query_arg( array('pag' => $page-1) ) .'">Pagina anterioara</a>';
+		}
+
+		if( $have_results ){
+			echo '<a class="btn btn-default pull-right" href="'. add_query_arg( array('pag' => $page+1) ) .'">Pagina urmatoare</a>';
+		}
+	echo '</div>';
 }

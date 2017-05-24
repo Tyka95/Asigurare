@@ -133,10 +133,6 @@ add_action( 'cerere_respinsa', function( $cerere_id, $message ){
 
 	$cerere = get_cerere_by_id( $cerere_id );
 
-	echo '<pre>';
-	print_r( $cerere );
-	echo '</pre>';
-
 	$sent = send_mail( 
 		$cerere['email'], 
 		$settings['cerere_respinsa_subject'], 

@@ -34,10 +34,11 @@
 		*/
 		function perioada_asigurata( value ){
 			if( value == 'moldova' ){
-				$( '[name="perioada_asigurata"]' ).attr('disabled', 'disabled').val('12l').change();
+				$( 'select[name="perioada_asigurata"]' ).attr('disabled', 'disabled').val('12l').change();
+				$( 'select[name="perioada_asigurata"]' ).before('<input type="hidden" name="perioada_asigurata" value="12l">');
 			}
 			else{
-				$( '[name="perioada_asigurata"]' ).removeAttr('disabled');
+				$( 'select[name="perioada_asigurata"]' ).removeAttr('disabled');
 			}
 		}
 

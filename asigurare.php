@@ -4,7 +4,14 @@
 Proceseaza forma daca a fost trimisa de utilizator.
 -------------------------------------------------------------------------------
 */
-include __DIR__ . '/process-form.php';
+$errors = process_form_date_asigurat();
+
+if( !empty( $errors ) && is_array( $errors ) ){
+	echo '<div class="alert alert-danger">';
+	echo 'Va rugam sa corectati erorile de mai jos.';
+	echo '</div>';
+}
+
 ?>
 
 <form method="post">
@@ -90,6 +97,10 @@ foreach ($form as $field_id => $field) {
 				break;
 
 		} // switch
+
+		if( !empty($errors[ $field_id ]) ){
+			echo '<div class="text-danger">' . $errors[ $field_id ] .'</div>';
+		}
 
 		echo '</div>';
 

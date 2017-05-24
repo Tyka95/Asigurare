@@ -144,6 +144,8 @@ if( !empty($_POST) ){
 			------------------------------------------------*/
 			$sql = "CREATE TABLE cereri(
 			id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			email VARCHAR(255),
+			telefon VARCHAR(255),
 			nume_prenume VARCHAR(255),
 			cod_personal int,
 			numar_inmatriculare_document VARCHAR(255),
