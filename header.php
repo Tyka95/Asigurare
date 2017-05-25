@@ -7,7 +7,6 @@
 	
 	<title><?php echo get_option('site_title') .' - '. site_title( true ); ?></title>
 	<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-theme.css">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<link rel="icon" href="img/asigurare.png">
 	<script type="text/javascript" src="js/jquery-2.2.4.min.js"></script>

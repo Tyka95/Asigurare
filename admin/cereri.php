@@ -58,34 +58,40 @@ elseif( !empty($_GET['action']) && $_GET['action'] == 'view' && !empty($_GET['id
 			}
 		}
 
+		echo '<div class="alert alert-info">Suma calculata conform datelor introduse este: <strong>'. calculator_rca( $cerere ) .' Lei</strong></div>';
 
 		echo '
-		<h2>Verificare cerere</h2>
-
-		<form action="" method="post">
-			
-			<div class="form-group">
-				<label>Mesaj pentru utilizator</label>
-				'. Field::textarea('message', '', array(
-					'rows' => 10,
-					'class' => 'admin-textarea',
-				)) .'
+		<div class="panel panel-default">
+			<div class="panel-heading"> 
+				<h3 class="panel-title">Verificare cerere</h3> 
 			</div>
+			<div class="panel-body">
+				<form action="" method="post">
+					
+					<div class="form-group">
+						<label>Mesaj pentru utilizator</label>
+						'. Field::textarea('message', '', array(
+							'rows' => 10,
+							'class' => 'admin-textarea',
+						)) .'
+					</div>
 
-			<div class="form-group">
-				<label>Satus</label>
-				'. Field::nice_selector('status', $cerere['status'], array(
-					'pending' => 'In asteptare',
-					'accepted' => 'Aprobat',
-					'rejected' => 'Respins',	
-				)) .'
+					<div class="form-group">
+						<label>Satus</label>
+						'. Field::nice_selector('status', $cerere['status'], array(
+							'pending' => 'In asteptare',
+							'accepted' => 'Aprobat',
+							'rejected' => 'Respins',	
+						)) .'
+					</div>
+
+					<button type="submit" class="btn btn-primary">Trimite</button>
+
+					<input type="hidden" name="verificare_cerere" value="1" />
+
+				</form>
 			</div>
-
-			<button type="submit" class="btn btn-primary">Trimite</button>
-
-			<input type="hidden" name="verificare_cerere" value="1" />
-
-		</form>
+		</div>
 		';
 
 	}

@@ -1033,6 +1033,14 @@ function form_value_label( $field_id, $saved_value ){
 			$label = $label['label'];
 		}
 	}
+	elseif( 'persoane_admin_la_volan' == $type && !empty($saved_value) ){
+		$label = '';
+		foreach ($saved_value as $person) {
+			if( !empty($person['nume']) && !empty($person['cod_personal']) ){
+				$label .= '<div>'. $person['nume'] .': '. $person['cod_personal'] .'</div>';
+			}
+		}
+	}
 
 	return $label;
 }
@@ -1228,11 +1236,7 @@ function price_table(){
 	);
 }
 
-function calculator_rca(){
-	if( empty($_POST) )
-		return false;
-
-	$data = $_POST;
+function calculator_rca( $data ){
 	$k1 = $k2 = $k3 = $k4 = $k5 = 1;
 	$price = price_table();
 
@@ -1278,5 +1282,5 @@ function calculator_rca(){
 	}
 
 
-	echo round( 715 * $k1 * $k2 * $k3 * $k4 * $k5 );
+	return round( 715 * $k1 * $k2 * $k3 * $k4 * $k5 );
 }
